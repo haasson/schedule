@@ -8,15 +8,17 @@ const token = '1872826033:AAG7apyYhkqfZ8iJeZzwJeafLiRs5DoAX1I'
 const bot = new TelegramApi(token, { polling: true })
 
 const shedule = {
-  0: "Дневная смена №1",
-  1: "Дневная смена №2",
-  2: "Ночная смена №1",
-  3: "Ночная смена №2",
-  4: "Выходной №1",
-  5: "Выходной №2",
-  6: "Выходной №3",
-  7: "Выходной №4"
+  0: "первая дневная смена",
+  1: "вторая дневная смена",
+  2: "первая ночная смена",
+  3: "вторая ночная смена",
+  4: "первый выходной",
+  5: "второй выходной",
+  6: "третий выходной",
+  7: "четвертый выходной"
 }
+
+const dayInMs = 1000 * 3600 * 24
 
 
 const getShedule = async (chatId) => {
@@ -29,12 +31,12 @@ const calcShedule = async (chatId, type) => {
   let daysLag;
   if (type === "seriozha_today") {
     date = new Date();
-    daysLag = Math.ceil(Math.abs(date.getTime() - startDate.getTime()) / (1000 * 3600 * 24)) - 1;
+    daysLag = Math.ceil(Math.abs(date.getTime() - startDate.getTime()) / dayInMs) - 1;
     await bot.sendMessage(chatId, `Сегодня ${shedule[daysLag % 8]}`);
   } else if (type === "seriozha_weekend") {
     let todayDay = new Date().getDay();
     let shift = 6 - todayDay;
-    daysLag = Math.ceil(Math.abs(new Date().getTime() + (1000 * 3600 * 24 * shift) - startDate.getTime()) / (1000 * 3600 * 24)) - 1;
+    daysLag = Math.ceil(Math.abs(new Date().getTime() + (dayInMs * shift) - startDate.getTime()) / dayInMs) - 1;
     await bot.sendMessage(chatId, `В субботу - ${shedule[daysLag % 8]}, в воскресенье - ${shedule[(daysLag + 1) % 8]}`);
   } else if ("seriozha_nearest") {
     await bot.sendMessage(chatId, `Сорян, этот функционал еще не реализован`);
