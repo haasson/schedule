@@ -28,46 +28,54 @@ const getShedule = async (chatId) => {
 }
 
 const getTodayIndex = () => {
+  let startDate = new Date('06-17-2021');
   date = new Date();
   daysLag = Math.ceil(Math.abs(date.getTime() - startDate.getTime()) / dayInMs) - 1;
   return daysLag % 8
 }
 
 const calcShedule = async (chatId, type) => {
-  let startDate = new Date('06-17-2021');
-  let date;
-  let daysLag;
-  if (type === "seriozha_today") {
-    const todayIndex = getTodayIndex()
-    await bot.sendMessage(chatId, `Сегодня ${shedule[todayIndex]}`);
-  } else if (type === "seriozha_weekend") {
-    let todayDay = new Date().getDay();
-    let shift = 6 - todayDay; // 6 - number of Saturday
-    daysLag = Math.ceil(Math.abs(new Date().getTime() + (dayInMs * shift) - startDate.getTime()) / dayInMs) - 1;
-    await bot.sendMessage(chatId, `В субботу - ${shedule[daysLag % 8]}, в воскресенье - ${shedule[(daysLag + 1) % 8]}`);
-  } else if ("seriozha_nearest") {
-    const todayIndex = getTodayIndex()
-    let todayDay = new Date().getDay()
-
-    if (todayIndex < 4) {
-      // today is working day, calculate nearest vacation
-      const shift = 4 - todayIndex // days to vacation
-      const nearestVacationDay = (todayDay + shift) % 7
-      await bot.sendMessage(chatId, `Ближайший выходной - ${days[nearestVacationDay]}`);
-    } else {
+  switch (type) {
+    case "seriozha_today": {
+      const todayIndex = getTodayIndex()
       await bot.sendMessage(chatId, `Сегодня ${shedule[todayIndex]}`);
+      break;
     }
 
-    // date = new Date();
-    // daysLag = Math.ceil(Math.abs(date.getTime() - startDate.getTime()) / (1000 * 3600 * 24)) - 1;
-    // if (shedule[daysLag % 8] > 3) {
-    //   await bot.sendMessage(chatId, `Сегодня ${shedule[daysLag % 8]}`);
-    // } else {
-    //   await bot.sendMessage(chatId, `Скоро ${shedule[daysLag % 8]}`);
-    // }
+    case "seriozha_weekend": {
+      let todayDay = new Date().getDay();
+      let shift = 6 - todayDay; // 6 - number of Saturday
+      let daysLag = Math.ceil(Math.abs(new Date().getTime() + (dayInMs * shift) - startDate.getTime()) / dayInMs) - 1;
+      await bot.sendMessage(chatId, `В субботу - ${shedule[daysLag % 8]}, в воскресенье - ${shedule[(daysLag + 1) % 8]}`);
+      break;
+    }
+
+    case "seriozha_weekend": {
+      const todayIndex = getTodayIndex()
+      let todayDay = new Date().getDay()
+
+      if (todayIndex < 4) {
+        // today is working day, calculate nearest vacation
+        const shift = 4 - todayIndex // days to vacation
+        const nearestVacationDay = (todayDay + shift) % 7
+        await bot.sendMessage(chatId, `Ближайший выходной - ${days[nearestVacationDay]}`);
+      } else {
+        await bot.sendMessage(chatId, `Сегодня ${shedule[todayIndex]}`);
+      }
+      break;
+    }
+
+    default:
+      break;
   }
 
-
+  // date = new Date();
+  // daysLag = Math.ceil(Math.abs(date.getTime() - startDate.getTime()) / (1000 * 3600 * 24)) - 1;
+  // if (shedule[daysLag % 8] > 3) {
+  //   await bot.sendMessage(chatId, `Сегодня ${shedule[daysLag % 8]}`);
+  // } else {
+  //   await bot.sendMessage(chatId, `Скоро ${shedule[daysLag % 8]}`);
+  // }
 }
 // await bot.sendMessage(chatId, `Узнай как сегодня работает Серёжа`, sheduleOptions);
 const start = async () => {
@@ -87,7 +95,10 @@ const start = async () => {
       if (text === '/seriozha') {
         return getShedule(chatId)
       }
-      return bot.sendMessage(chatId, 'Я тебя не понимаю, попробуй еще раз!)');
+      if (text.indexOf("коммунизм") !== 0) {
+        return bot.sendMessage(chatId, `Коммунизм - говно!`);
+      }
+      return bot.sendMessage(chatId, '{Хуйню каку-то написал}!');
     } catch (e) {
       return bot.sendMessage(chatId, 'Произошла какая то ошибочка!!!)');
     }
