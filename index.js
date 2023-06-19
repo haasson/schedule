@@ -77,6 +77,7 @@ const calcShedule = async (chatId, type) => {
   //   await bot.sendMessage(chatId, `Скоро ${shedule[daysLag % 8]}`);
   // }
 }
+
 // await bot.sendMessage(chatId, `Узнай как сегодня работает Серёжа`, sheduleOptions);
 const start = async () => {
 
@@ -99,9 +100,18 @@ const start = async () => {
         return bot.sendMessage(chatId, `Коммунизм - говно!`);
       }
       if (text.toLowerCase().indexOf("вива ля раза") !== -1) {
-        return bot.sendMessage(chatId, `Астала муэртэ`);
+        return bot.sendMessage(chatId, `Астала муэртэ!`);
       }
-      return bot.sendMessage(chatId, '{Хуйню каку-то написал}!');
+      if (text.toLowerCase().indexOf("небул") !== -1) {
+        return bot.sendMessage(chatId, `Рамиз хуйню не забьет!`);
+      }
+      if (text.toLowerCase().indexOf("чистилищ") !== -1) {
+        return bot.sendMessage(chatId, `Не рекомендую к посещению данное место!`);
+      }
+      if (text.toLowerCase().indexOf(" горный") !== -1) {
+        return bot.sendMessage(chatId, `Людмила Станиславовна уже ждёт!`);
+      }
+      return bot.sendMessage(chatId, 'Хуйню какую-то написал!');
     } catch (e) {
       return bot.sendMessage(chatId, 'Произошла какая то ошибочка!!!)');
     }
