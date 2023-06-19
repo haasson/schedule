@@ -50,7 +50,7 @@ const calcShedule = async (chatId, type) => {
       break;
     }
 
-    case "seriozha_weekend": {
+    case "seriozha_nearest": {
       const todayIndex = getTodayIndex()
       let todayDay = new Date().getDay()
 
@@ -95,7 +95,7 @@ const start = async () => {
       if (text === '/seriozha') {
         return getShedule(chatId)
       }
-      if (text.indexOf("коммунизм") !== 0) {
+      if (text.toLowerCase.indexOf("коммунизм") !== 0) {
         return bot.sendMessage(chatId, `Коммунизм - говно!`);
       }
       return bot.sendMessage(chatId, '{Хуйню каку-то написал}!');
