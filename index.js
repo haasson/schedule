@@ -18,7 +18,7 @@ const shedule = [
   "четвертый выходной"
 ]
 
-const days = []
+const days = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"]
 
 const dayInMs = 1000 * 3600 * 24
 
@@ -41,7 +41,7 @@ const calcShedule = async (chatId, type) => {
     daysLag = Math.ceil(Math.abs(new Date().getTime() + (dayInMs * shift) - startDate.getTime()) / dayInMs) - 1;
     await bot.sendMessage(chatId, `В субботу - ${shedule[daysLag % 8]}, в воскресенье - ${shedule[(daysLag + 1) % 8]}`);
   } else if ("seriozha_nearest") {
-    await bot.sendMessage(chatId, `Сорян, этот функционал еще не реализован`);
+    await bot.sendMessage(chatId, `Сорян, этот функционал еще не реализован :(`);
     // date = new Date();
     // daysLag = Math.ceil(Math.abs(date.getTime() - startDate.getTime()) / (1000 * 3600 * 24)) - 1;
     // if (shedule[daysLag % 8] > 3) {
