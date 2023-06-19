@@ -27,14 +27,19 @@ const getShedule = async (chatId) => {
   await bot.sendMessage(chatId, `Узнай как сегодня работает Серёжа`, sheduleOptions);
 }
 
+const getTodayIndex = () => {
+  date = new Date();
+  daysLag = Math.ceil(Math.abs(date.getTime() - startDate.getTime()) / dayInMs) - 1;
+  return daysLag % 8
+}
+
 const calcShedule = async (chatId, type) => {
   let startDate = new Date('06-17-2021');
   let date;
   let daysLag;
   if (type === "seriozha_today") {
-    date = new Date();
-    daysLag = Math.ceil(Math.abs(date.getTime() - startDate.getTime()) / dayInMs) - 1;
-    await bot.sendMessage(chatId, `Сегодня ${shedule[daysLag % 8]}`);
+    const todayIndex = getTodayIndex()
+    await bot.sendMessage(chatId, `Сегодня ${shedule[todayIndex]}`);
   } else if (type === "seriozha_weekend") {
     let todayDay = new Date().getDay();
     let shift = 6 - todayDay; // 6 - number of Saturday
@@ -42,6 +47,19 @@ const calcShedule = async (chatId, type) => {
     await bot.sendMessage(chatId, `В субботу - ${shedule[daysLag % 8]}, в воскресенье - ${shedule[(daysLag + 1) % 8]}`);
   } else if ("seriozha_nearest") {
     await bot.sendMessage(chatId, `Сорян, этот функционал еще не реализован :(`);
+    const todayIndex = getTodayIndex()
+    let todayDay = new Date().getDay()
+
+    if (todayIndex < 4) {
+      // today is working day, calculate nearest vacation
+      const shift = 4 - todayIndex // days to vacation
+      const todayDay = new Date().getDay()
+      const nearestVacationDay = (todayDay + shift) % 7
+      await bot.sendMessage(chatId, `Ближайший выходной - ${days[nearestVacationDay]}`);
+    } else {
+      await bot.sendMessage(chatId, `Сегодня ${shedule[todayIndex]}`);
+    }
+
     // date = new Date();
     // daysLag = Math.ceil(Math.abs(date.getTime() - startDate.getTime()) / (1000 * 3600 * 24)) - 1;
     // if (shedule[daysLag % 8] > 3) {
