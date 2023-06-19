@@ -95,8 +95,11 @@ const start = async () => {
       if (text === '/seriozha') {
         return getShedule(chatId)
       }
-      if (text.toLowerCase.indexOf("коммунизм") !== 0) {
+      if (text.toLowerCase().indexOf("коммунизм") !== 0) {
         return bot.sendMessage(chatId, `Коммунизм - говно!`);
+      }
+      if (text.toLowerCase().indexOf("вива ля раза") !== 0) {
+        return bot.sendMessage(chatId, `Астала муэртэ`);
       }
       return bot.sendMessage(chatId, '{Хуйню каку-то написал}!');
     } catch (e) {
