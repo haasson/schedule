@@ -7,6 +7,7 @@ const token = '1872826033:AAG7apyYhkqfZ8iJeZzwJeafLiRs5DoAX1I'
 
 const bot = new TelegramApi(token, { polling: true })
 
+let startDate = new Date('06-17-2021');
 const shedule = [
   "первая дневная смена",
   "вторая дневная смена",
@@ -28,7 +29,6 @@ const getShedule = async (chatId) => {
 }
 
 const getTodayIndex = () => {
-  let startDate = new Date('06-17-2021');
   date = new Date();
   daysLag = Math.ceil(Math.abs(date.getTime() - startDate.getTime()) / dayInMs) - 1;
   return daysLag % 8
