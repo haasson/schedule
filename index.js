@@ -66,6 +66,8 @@ const start = async () => {
     const text = msg.text;
     const chatId = msg.chat.id;
 
+    if (msg.from.is_bot) return
+
     console.log(msg)
 
     try {
@@ -88,7 +90,7 @@ const start = async () => {
         return bot.sendMessage(chatId, `Не рекомендую к посещению данное место!`);
       }
       if (text.toLowerCase().indexOf("бот") !== -1 && (text.toLowerCase().indexOf("привет") !== -1 || text.toLowerCase().indexOf("здраст") !== -1 || text.toLowerCase().indexOf("здравст") !== -1)) {
-        return bot.sendMessage(chatId, `Всем привет в этом чатике!`);
+        return bot.sendMessage(chatId, `Привет, ${msg.from.first_name}!`);
       }
       if (text.toLowerCase().indexOf(" горный") !== -1) {
         return bot.sendMessage(chatId, `${getRandomArrayElement(names)} ${getRandomArrayElement(secondNames)} уже ждёт!`);

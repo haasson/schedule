@@ -4,6 +4,7 @@ module.exports = {
   },
   getRandomArrayElement: (array) => {
     const index = getRandomNumber(0, array.length)
+    console.log(index, array[index])
     return array[index]
   }
 }
