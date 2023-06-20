@@ -20,8 +20,17 @@ const shedule = [
 ]
 
 const days = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"]
-
 const dayInMs = 1000 * 3600 * 24
+
+const names = ["Лариса", "Василиса", "Ангелина", "Мария", "Анастасия", "Фёкла", "Полина", "Эндиборга", "Маргарита", "Галина", "Валентина", "Эльвира", "Элеонора", "Агния",]
+const seconsNames = ["Сергеевна", "Макаровна", "Константиновна", "Леопольдовна", "Анатольевна", "Викторовна", "Валерьевна", "Никитишна", "Юрьевна", "Станиславовна", "Ивановна", "Аркадьевна", "Семёновна", "Григорьевна", "Павловна",]
+
+const getRandomNumber = (min, max) => {
+  return Math.floor(Math.random() * (max - min + 1) + min)
+}
+const getRandomArrayElement = (array) => {
+  return getRandomNumber(0, array.length)
+}
 
 
 const getShedule = async (chatId) => {
@@ -108,8 +117,11 @@ const start = async () => {
       if (text.toLowerCase().indexOf("чистилищ") !== -1) {
         return bot.sendMessage(chatId, `Не рекомендую к посещению данное место!`);
       }
+      if (text.toLowerCase().indexOf("бот") !== -1 && (text.toLowerCase().indexOf("привет") !== -1 || text.toLowerCase().indexOf("здраст") !== -1 || text.toLowerCase().indexOf("здравст") !== -1)) {
+        return bot.sendMessage(chatId, `Всем привет в этом чатике!`);
+      }
       if (text.toLowerCase().indexOf(" горный") !== -1) {
-        return bot.sendMessage(chatId, `Людмила Станиславовна уже ждёт!`);
+        return bot.sendMessage(chatId, `${getRandomArrayElement(names)} ${getRandomArrayElement(seconsNames)} уже ждёт!`);
       }
       // return bot.sendMessage(chatId, 'Хуйню какую-то написал!');
     } catch (e) {
