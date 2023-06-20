@@ -111,9 +111,9 @@ const start = async () => {
       if (text.toLowerCase().indexOf(" горный") !== -1) {
         return bot.sendMessage(chatId, `Людмила Станиславовна уже ждёт!`);
       }
-      return bot.sendMessage(chatId, 'Хуйню какую-то написал!');
+      // return bot.sendMessage(chatId, 'Хуйню какую-то написал!');
     } catch (e) {
-      return bot.sendMessage(chatId, 'Произошла какая то ошибочка!!!)');
+      // return bot.sendMessage(chatId, 'Произошла какая то ошибочка!!!)');
     }
 
   })
