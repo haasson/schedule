@@ -1,36 +1,12 @@
 const TelegramApi = require('node-telegram-bot-api')
-const { sheduleOptions, againOptions } = require('./options')
-// const UserModel = require('./models');
+const { sheduleOptions } = require('./options')
+const { scheduleStartDate, sheduleStrings, daysOfWeek, dayInMs } = require('./data/schedule')
+const { names, secondNames } = require('./data/eleonoraNames')
+const { getRandomArrayElement } = require('./utils/math')
 
 const token = '1872826033:AAG7apyYhkqfZ8iJeZzwJeafLiRs5DoAX1I'
-// const token = '1894060164:AAFOvA_YFVNBK6_XOmLcDMMRvt4JA6Zb4Po'
-
 const bot = new TelegramApi(token, { polling: true })
 
-let startDate = new Date('06-17-2021');
-const shedule = [
-  "первая дневная смена",
-  "вторая дневная смена",
-  "первая ночная смена",
-  "вторая ночная смена",
-  "первый выходной",
-  "второй выходной",
-  "третий выходной",
-  "четвертый выходной"
-]
-
-const days = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"]
-const dayInMs = 1000 * 3600 * 24
-
-const names = ["Лариса", "Василиса", "Ангелина", "Мария", "Анастасия", "Фёкла", "Полина", "Эндиборга", "Маргарита", "Галина", "Валентина", "Эльвира", "Элеонора", "Агния",]
-const seconsNames = ["Сергеевна", "Макаровна", "Константиновна", "Леопольдовна", "Анатольевна", "Викторовна", "Валерьевна", "Никитишна", "Юрьевна", "Станиславовна", "Ивановна", "Аркадьевна", "Семёновна", "Григорьевна", "Павловна",]
-
-const getRandomNumber = (min, max) => {
-  return Math.floor(Math.random() * (max - min + 1) + min)
-}
-const getRandomArrayElement = (array) => {
-  return getRandomNumber(0, array.length)
-}
 
 
 const getShedule = async (chatId) => {
@@ -39,7 +15,7 @@ const getShedule = async (chatId) => {
 
 const getTodayIndex = () => {
   date = new Date();
-  daysLag = Math.ceil(Math.abs(date.getTime() - startDate.getTime()) / dayInMs) - 1;
+  daysLag = Math.ceil(Math.abs(date.getTime() - scheduleStartDate.getTime()) / dayInMs) - 1;
   return daysLag % 8
 }
 
@@ -47,15 +23,15 @@ const calcShedule = async (chatId, type) => {
   switch (type) {
     case "seriozha_today": {
       const todayIndex = getTodayIndex()
-      await bot.sendMessage(chatId, `Сегодня ${shedule[todayIndex]}`);
+      await bot.sendMessage(chatId, `Сегодня ${sheduleStrings[todayIndex]}`);
       break;
     }
 
     case "seriozha_weekend": {
       let todayDay = new Date().getDay();
       let shift = 6 - todayDay; // 6 - number of Saturday
-      let daysLag = Math.ceil(Math.abs(new Date().getTime() + (dayInMs * shift) - startDate.getTime()) / dayInMs) - 1;
-      await bot.sendMessage(chatId, `В субботу - ${shedule[daysLag % 8]}, в воскресенье - ${shedule[(daysLag + 1) % 8]}`);
+      let daysLag = Math.ceil(Math.abs(new Date().getTime() + (dayInMs * shift) - scheduleStartDate.getTime()) / dayInMs) - 1;
+      await bot.sendMessage(chatId, `В субботу - ${sheduleStrings[daysLag % 8]}, в воскресенье - ${sheduleStrings[(daysLag + 1) % 8]}`);
       break;
     }
 
@@ -67,9 +43,9 @@ const calcShedule = async (chatId, type) => {
         // today is working day, calculate nearest vacation
         const shift = 4 - todayIndex // days to vacation
         const nearestVacationDay = (todayDay + shift) % 7
-        await bot.sendMessage(chatId, `Ближайший выходной - ${days[nearestVacationDay]}`);
+        await bot.sendMessage(chatId, `Ближайший выходной - ${daysOfWeek[nearestVacationDay]}`);
       } else {
-        await bot.sendMessage(chatId, `Сегодня ${shedule[todayIndex]}`);
+        await bot.sendMessage(chatId, `Сегодня ${sheduleStrings[todayIndex]}`);
       }
       break;
     }
@@ -77,14 +53,6 @@ const calcShedule = async (chatId, type) => {
     default:
       break;
   }
-
-  // date = new Date();
-  // daysLag = Math.ceil(Math.abs(date.getTime() - startDate.getTime()) / (1000 * 3600 * 24)) - 1;
-  // if (shedule[daysLag % 8] > 3) {
-  //   await bot.sendMessage(chatId, `Сегодня ${shedule[daysLag % 8]}`);
-  // } else {
-  //   await bot.sendMessage(chatId, `Скоро ${shedule[daysLag % 8]}`);
-  // }
 }
 
 // await bot.sendMessage(chatId, `Узнай как сегодня работает Серёжа`, sheduleOptions);
@@ -97,6 +65,8 @@ const start = async () => {
   bot.on('message', async msg => {
     const text = msg.text;
     const chatId = msg.chat.id;
+
+    console.log(msg)
 
     try {
       if (text === '/start') {
@@ -121,7 +91,7 @@ const start = async () => {
         return bot.sendMessage(chatId, `Всем привет в этом чатике!`);
       }
       if (text.toLowerCase().indexOf(" горный") !== -1) {
-        return bot.sendMessage(chatId, `${getRandomArrayElement(names)} ${getRandomArrayElement(seconsNames)} уже ждёт!`);
+        return bot.sendMessage(chatId, `${getRandomArrayElement(names)} ${getRandomArrayElement(secondNames)} уже ждёт!`);
       }
       // return bot.sendMessage(chatId, 'Хуйню какую-то написал!');
     } catch (e) {
