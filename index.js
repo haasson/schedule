@@ -56,10 +56,6 @@ const calcShedule = async (chatId, type) => {
   }
 }
 
-const sendMessage = (message) => {
-  bot.sendMessage(chatId, message)
-}
-
 // await bot.sendMessage(chatId, `Узнай как сегодня работает Серёжа`, sheduleOptions);
 const start = async () => {
 
@@ -74,6 +70,10 @@ const start = async () => {
 
     if (msg.from.is_bot) return
 
+    const sendMessage = (message) => {
+      bot.sendMessage(chatId, message)
+    }
+
     try {
       if (text === '/start') {
         return sendMessage('Привет! Я умею рассказывать как работает Сережа! (spoiler: хуёво)');
@@ -87,23 +87,24 @@ const start = async () => {
       if (textContains(text, "вива ля раза")) {
         return sendMessage(`Астала муэртэ!`);
       }
-      if (textContains("небул")) {
+      if (textContains(text, "небул")) {
         return sendMessage(`Рамиз хуйню не забьет!`);
       }
-      if (textContains("чистилищ")) {
+      if (textContains(text, "чистилищ")) {
         return sendMessage(`Не рекомендую к посещению данное место!`);
       }
-      if (textContains("бот") && textContainsAny(['привет', 'здраст', 'даров', 'здравст'])) {
+      if (textContains(text, "бот") && textContainsAny(text, ['привет', 'здраст', 'даров', 'здравст'])) {
         return sendMessage(`Привет, ${msg.from.first_name}!`);
       }
-      if (textContains(" горный")) {
+      if (textContains(text, " горный")) {
         return sendMessage(`${getRandomArrayElement(names)} ${getRandomArrayElement(secondNames)} уже ждёт!`);
       }
-      if (textContainsAny(["с погодой", "по погоде", "погода"]) && textContainsAny["че", "чё", "что", "шо", "какая"]) {
-        const res = await fetch(`http://api.weatherapi.com/v1/current.json?key=57ae806dbe4a461081792647232006&q=Barnaul&aqi=no`)
-        console.log(res)
+      if (textContainsAny(text, ["с погодой", "по погоде", "погода"]) && textContainsAny(text, ["че", "чё", "что", "шо", "какая"])) {
+        const res = await fetch(`http://api.weatherapi.com/v1/current.json?key=57ae806dbe4a461081792647232006&q=Barnaul&aqi=no&lang=ru`)
         const data = await res.json()
         console.log(data)
+        const { condition, temp_c, feelslike_c } = data.current
+        return sendMessage(`Сегодня ${condition.text.toLowerCase()}, температура ${temp_c}°, по ощущениям ${feelslike_c}°`);
       }
       // return bot.sendMessage(chatId, 'Хуйню какую-то написал!');
     } catch (e) {
