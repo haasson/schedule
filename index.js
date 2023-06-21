@@ -4,6 +4,7 @@ const { scheduleStartDate, sheduleStrings, daysOfWeek, dayInMs } = require('./da
 const { names, secondNames } = require('./data/eleonoraNames')
 const { getRandomArrayElement } = require('./utils/math')
 const { textContains, textContainsAny, textContainsEvery } = require('./utils/strings')
+const { getCurrentWeather, getTomorrowWeather, getWeatherForecast } = require('./services/weather')
 
 const token = '1872826033:AAG7apyYhkqfZ8iJeZzwJeafLiRs5DoAX1I'
 const bot = new TelegramApi(token, { polling: true })
@@ -99,12 +100,30 @@ const start = async () => {
       if (textContains(text, " горный")) {
         return sendMessage(`${getRandomArrayElement(names)} ${getRandomArrayElement(secondNames)} уже ждёт!`);
       }
-      if (textContainsAny(text, ["с погодой", "по погоде", "погода"]) && textContainsAny(text, ["че", "чё", "что", "шо", "какая"])) {
-        const res = await fetch(`http://api.weatherapi.com/v1/current.json?key=57ae806dbe4a461081792647232006&q=Barnaul&aqi=no&lang=ru`)
-        const data = await res.json()
-        console.log(data)
-        const { condition, temp_c, feelslike_c } = data.current
-        return sendMessage(`Сегодня ${condition.text.toLowerCase()}, температура ${temp_c}°, по ощущениям ${feelslike_c}°`);
+      if (textContainsAny(text, ["с погод", "по погод", "погода", "погоды"])) {
+
+        if (textContains(text, "завтра")) {
+          const { forecast } = await getTomorrowWeather()
+          const { type, min, max } = forecast[0]
+          return sendMessage(`Завтра ${type}, температура от ${min} до ${max}`);
+        }
+
+        if (textContainsAny(text, ["прогноз", "ближайш"])) {
+          const strings = ["Сегодня", "завтра", "послезавтра"]
+          const { forecast } = await getWeatherForecast(3)
+          const message = forecast.reduce((memo, day, index) => {
+            const { type, min, max } = day
+            return memo += `${strings[index]} ${type}, температура от ${min} до ${max}; `
+          }, '')
+          return sendMessage(message.slice(0, -2));
+        }
+
+        if (textContainsAny(text, ["че", "чё", "что", "шо", "как", "бот"])) {
+          const { current } = await getCurrentWeather()
+          console.log(current)
+          const { type, temp, feelslike } = current
+          return sendMessage(`Сегодня ${type}, температура ${temp}, по ощущениям ${feelslike}`);
+        }
       }
       // return bot.sendMessage(chatId, 'Хуйню какую-то написал!');
     } catch (e) {
