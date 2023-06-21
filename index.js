@@ -4,12 +4,13 @@ const { scheduleStartDate, sheduleStrings, daysOfWeek, dayInMs } = require('./da
 const { names, secondNames } = require('./data/eleonoraNames')
 const { getRandomArrayElement } = require('./utils/math')
 const { textContains, textContainsAny, textContainsEvery } = require('./utils/strings')
+const { greetings } = require('./data/greetings')
 const { getCurrentWeather, getTomorrowWeather, getWeatherForecast } = require('./services/weather')
+const { saveContext, updateContext, context } = require('./utils/context')
 
 const token = '1872826033:AAG7apyYhkqfZ8iJeZzwJeafLiRs5DoAX1I'
 const bot = new TelegramApi(token, { polling: true })
-
-
+let isBotSpeaks = true
 
 const getShedule = async (chatId) => {
   await bot.sendMessage(chatId, `Узнай как сегодня работает Серёжа`, sheduleOptions);
@@ -67,7 +68,6 @@ const start = async () => {
   bot.on('message', async msg => {
     const text = msg.text;
     const chatId = msg.chat.id;
-    console.log(msg)
 
     if (msg.from.is_bot) return
 
@@ -75,12 +75,40 @@ const start = async () => {
       bot.sendMessage(chatId, message)
     }
 
+    updateContext()
+    console.log(context)
+
     try {
       if (text === '/start') {
         return sendMessage('Привет! Я умею рассказывать как работает Сережа! (spoiler: хуёво)');
       }
       if (text === '/seriozha') {
         return getShedule(chatId)
+      }
+      if (!isBotSpeaks) {
+        if (textContainsAny(text, ["сережа", "серёжа", "бот"]) && textContainsAny(text, ["вернись", "не молчи", "ответь", "просып", "просни", "вставай", "возвращ"])) {
+          isBotSpeaks = true
+          return sendMessage('Я снова с вами :)');
+        }
+        return
+      }
+
+      if (textContainsAny(text, ["сережа", "серёжа", "бот"]) && textContainsAny(text, ["заебал", "заткни", "замолчи", "иди нахуй", "отъебис", "отьебис"])) {
+        saveContext('silent')
+        return sendMessage('На сколько минут заткнуться?');
+      }
+      if (context.silent) {
+        const numberPattern = /\d+/g;
+        const minutes = text.match(numberPattern)?.[0]
+
+        if (minutes) {
+          isBotSpeaks = false
+          delete context.silent
+          setTimeout(() => {
+            isBotSpeaks = true
+          }, minutes * 60 * 1000)
+          return sendMessage(`Заткнулся на ${minutes} минут`);
+        }
       }
       if (textContains(text, "коммунизм")) {
         return sendMessage(`Коммунизм - говно!`);
@@ -95,12 +123,15 @@ const start = async () => {
         return sendMessage(`Не рекомендую к посещению данное место!`);
       }
       if (textContains(text, "бот") && textContainsAny(text, ['привет', 'здраст', 'даров', 'здравст'])) {
-        return sendMessage(`Привет, ${msg.from.first_name}!`);
+        return sendMessage(`Привет, ${msg.from.first_name}! ${getRandomArrayElement(greetings)}`);
       }
       if (textContains(text, " горный")) {
         return sendMessage(`${getRandomArrayElement(names)} ${getRandomArrayElement(secondNames)} уже ждёт!`);
       }
-      if (textContainsAny(text, ["с погод", "по погод", "погода", "погоды"])) {
+      if (context.weather || textContainsAny(text, ["с погод", "по погод", "погода", "погоды"])) {
+        if (textContainsAny(text, ["с погод", "по погод", "погода", "погоды"])) {
+          saveContext("weather")
+        }
 
         if (textContains(text, "завтра")) {
           const { forecast } = await getTomorrowWeather()
@@ -120,9 +151,8 @@ const start = async () => {
 
         if (textContainsAny(text, ["че", "чё", "что", "шо", "как", "бот"])) {
           const { current } = await getCurrentWeather()
-          console.log(current)
           const { type, temp, feelslike } = current
-          return sendMessage(`Сегодня ${type}, температура ${temp}, по ощущениям ${feelslike}`);
+          return sendMessage(`Сейчас ${type}, температура ${temp}, по ощущениям ${feelslike}`);
         }
       }
       // return bot.sendMessage(chatId, 'Хуйню какую-то написал!');
