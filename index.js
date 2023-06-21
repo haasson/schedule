@@ -3,6 +3,7 @@ const { sheduleOptions } = require('./options')
 const { scheduleStartDate, sheduleStrings, daysOfWeek, dayInMs } = require('./data/schedule')
 const { names, secondNames } = require('./data/eleonoraNames')
 const { getRandomArrayElement } = require('./utils/math')
+const { textContains, textContainsAny, textContainsEvery } = require('./utils/strings')
 
 const token = '1872826033:AAG7apyYhkqfZ8iJeZzwJeafLiRs5DoAX1I'
 const bot = new TelegramApi(token, { polling: true })
@@ -55,6 +56,10 @@ const calcShedule = async (chatId, type) => {
   }
 }
 
+const sendMessage = (message) => {
+  bot.sendMessage(chatId, message)
+}
+
 // await bot.sendMessage(chatId, `Узнай как сегодня работает Серёжа`, sheduleOptions);
 const start = async () => {
 
@@ -72,28 +77,34 @@ const start = async () => {
 
     try {
       if (text === '/start') {
-        return bot.sendMessage(chatId, 'Привет! Я умею рассказывать как работает Сережа! (spoiler: хуёво)');
+        return sendMessage('Привет! Я умею рассказывать как работает Сережа! (spoiler: хуёво)');
       }
       if (text === '/seriozha') {
         return getShedule(chatId)
       }
-      if (text.toLowerCase().indexOf("коммунизм") !== -1) {
-        return bot.sendMessage(chatId, `Коммунизм - говно!`);
+      if (textContains(text, "коммунизм")) {
+        return sendMessage(`Коммунизм - говно!`);
       }
-      if (text.toLowerCase().indexOf("вива ля раза") !== -1) {
-        return bot.sendMessage(chatId, `Астала муэртэ!`);
+      if (textContains(text, "вива ля раза")) {
+        return sendMessage(`Астала муэртэ!`);
       }
-      if (text.toLowerCase().indexOf("небул") !== -1) {
-        return bot.sendMessage(chatId, `Рамиз хуйню не забьет!`);
+      if (textContains("небул")) {
+        return sendMessage(`Рамиз хуйню не забьет!`);
       }
-      if (text.toLowerCase().indexOf("чистилищ") !== -1) {
-        return bot.sendMessage(chatId, `Не рекомендую к посещению данное место!`);
+      if (textContains("чистилищ")) {
+        return sendMessage(`Не рекомендую к посещению данное место!`);
       }
-      if (text.toLowerCase().indexOf("бот") !== -1 && (text.toLowerCase().indexOf("привет") !== -1 || text.toLowerCase().indexOf("здраст") !== -1 || text.toLowerCase().indexOf("здравст") !== -1)) {
-        return bot.sendMessage(chatId, `Привет, ${msg.from.first_name}!`);
+      if (textContains("бот") && textContainsAny(['привет', 'здраст', 'даров', 'здравст'])) {
+        return sendMessage(`Привет, ${msg.from.first_name}!`);
       }
-      if (text.toLowerCase().indexOf(" горный") !== -1) {
-        return bot.sendMessage(chatId, `${getRandomArrayElement(names)} ${getRandomArrayElement(secondNames)} уже ждёт!`);
+      if (textContains(" горный")) {
+        return sendMessage(`${getRandomArrayElement(names)} ${getRandomArrayElement(secondNames)} уже ждёт!`);
+      }
+      if (textContainsAny(["с погодой", "по погоде", "погода"]) && textContainsAny["че", "чё", "что", "шо", "какая"]) {
+        const res = await fetch(`http://api.weatherapi.com/v1/current.json?key=57ae806dbe4a461081792647232006&q=Barnaul&aqi=no`)
+        console.log(res)
+        const data = await res.json()
+        console.log(data)
       }
       // return bot.sendMessage(chatId, 'Хуйню какую-то написал!');
     } catch (e) {
