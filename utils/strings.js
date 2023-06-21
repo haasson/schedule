@@ -21,7 +21,6 @@ const isBotMentioned = (text) => {
 
 const huificate = (text) => {
   const letters = ["ю", "и", "я", "э", "о", "а", "ы", "е", "ё", "у",]
-  // работа - хуебота, миксер - хуиксер, клякса - хуякса, лыжи - хуижи, люстра - хуюстра, семен - хуемен, мэска - хуэска
   const textByWord = text.split(" ")
   const huificatedWords = textByWord.map(word => {
     let edge

@@ -96,6 +96,7 @@ const start = async () => {
       }
 
       if (isBotMentioned && textContainsAny(text, ["заебал", "заткни", "замолчи", "нахуй", "отъебис", "отьебис"])) {
+        console.log('here')
         saveContext('silent')
         return sendMessage('На сколько минут заткнуться?');
       }
