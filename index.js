@@ -70,10 +70,9 @@ const start = async () => {
   bot.on('message', async msg => {
     const text = msg.text;
     const chatId = msg.chat.id;
+    console.log(msg)
 
     if (msg.from.is_bot) return
-
-    console.log(msg)
 
     try {
       if (text === '/start') {
@@ -108,6 +107,7 @@ const start = async () => {
       }
       // return bot.sendMessage(chatId, 'Хуйню какую-то написал!');
     } catch (e) {
+      console.log(e)
       // return bot.sendMessage(chatId, 'Произошла какая то ошибочка!!!)');
     }
 
