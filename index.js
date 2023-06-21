@@ -82,7 +82,7 @@ const start = async () => {
       if (text === '/start') {
         return sendMessage('Привет! Я умею рассказывать как работает Сережа! (spoiler: хуёво)');
       }
-      if (text === '/seriozha') {
+      if (text.split('@')[0] === '/seriozha' || textContainsAny(text, ["график", "работает"]) && textContainsAny(text, ["cережа", "серёжа"])) {
         return getShedule(chatId)
       }
       if (!isBotSpeaks) {
@@ -93,7 +93,7 @@ const start = async () => {
         return
       }
 
-      if (textContainsAny(text, ["сережа", "серёжа", "бот"]) && textContainsAny(text, ["заебал", "заткни", "замолчи", "иди нахуй", "отъебис", "отьебис"])) {
+      if (textContainsAny(text, ["сережа", "серёжа", "бот"]) && textContainsAny(text, ["заебал", "заткни", "замолчи", "нахуй", "отъебис", "отьебис"])) {
         saveContext('silent')
         return sendMessage('На сколько минут заткнуться?');
       }
@@ -149,7 +149,13 @@ const start = async () => {
           return sendMessage(message.slice(0, -2));
         }
 
-        if (textContainsAny(text, ["че", "чё", "что", "шо", "как", "бот"])) {
+        if (context.weather && textContainsAny(text, ["сёдня", "сегодня", "а щас", "а сейчас"])) {
+          const { current } = await getCurrentWeather()
+          const { type, temp, feelslike } = current
+          return sendMessage(`Сейчас ${type}, температура ${temp}, по ощущениям ${feelslike}`);
+        }
+
+        if (!context.weather && textContainsAny(text, ["че", "чё", "что", "шо", "как", "бот"])) {
           const { current } = await getCurrentWeather()
           const { type, temp, feelslike } = current
           return sendMessage(`Сейчас ${type}, температура ${temp}, по ощущениям ${feelslike}`);
