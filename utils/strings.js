@@ -15,18 +15,18 @@ const textContainsEvery = function (string, substrings) {
 }
 
 const isBotMentioned = (text) => {
-  console.log(text.toLowerCase().indexOf("бот"), textContainsAny(text, ["сережа", "серёжа", " бот",]))
-  return textContainsAny(text, ["сережа", "серёжа", " бот",]) || text.toLowerCase().indexOf("бот") === 0.
+  return textContainsAny(text, ["сереж", "серёж", " бот",]) || text.toLowerCase().indexOf("бот") === 0
 }
 
-const huificate = (text) => {
+const huificate = (text = '') => {
+  // text = text.replaceAll(/ *\[[^\]]*]/, '')
   const letters = ["ю", "и", "я", "э", "о", "а", "ы", "е", "ё", "у",]
   const textByWord = text.split(" ")
   const huificatedWords = textByWord.map(word => {
     let edge
     word = word.toLowerCase()
     word.split('').forEach((symbol, index) => {
-      if (edge) return
+      if (edge !== undefined) return
       if (letters.includes(symbol)) {
         edge = index
       }
@@ -34,7 +34,6 @@ const huificate = (text) => {
     if (edge === undefined) return word
 
     const slicedWord = word.slice(edge)
-    console.log(slicedWord, edge)
     if (["и", "я", "ю", "э", "ы", "ё", "е"].includes(slicedWord.charAt(0))) {
       return `ху${slicedWord}`
     }
@@ -50,7 +49,6 @@ const huificate = (text) => {
     return ""
   })
 
-  console.log(huificatedWords)
   return huificatedWords.join(' ')
 }
 

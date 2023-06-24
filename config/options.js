@@ -7,13 +7,5 @@ module.exports = {
         [{ text: 'Когда ближайшие выходные', callback_data: 'seriozha_nearest' }]
       ]
     })
-  },
-
-  againOptions: {
-    reply_markup: JSON.stringify({
-      inline_keyboard: [
-        [{ text: 'Играть еще раз', callback_data: '/again' }],
-      ]
-    })
   }
 }
