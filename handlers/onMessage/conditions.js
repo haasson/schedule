@@ -1,4 +1,4 @@
-const { textContainsAny, isBotMentioned } = require("../../utils/strings")
+const { textContainsAny, isBotMentioned, textContains } = require("../../utils/strings")
 
 const isCalledBack = (text) => textContainsAny(text, ["вернись", "не молчи", "ответь", "просып", "просни", "вставай", "возвращ"])
 const isShutUp = (text) => textContainsAny(text, ["заебал", "заткни", "замолчи", "нахуй", "отъебис", "отьебис"])
@@ -13,7 +13,7 @@ const isHookahMixToSave = (text) => isHookahMixMentioned(text) && textContainsAn
 const isHookahMixToDelete = (text) => isHookahMixMentioned(text) && textContainsAny(text, ["удал", "убери", "выкинь"])
 const isRandomHookahMixToShow = (text) => isHookahMixMentioned(text) && textContainsAny(text, ["дай", "вкинь", "посоветуй", "нужен", "нужна", "случайн", "рандомн"])
 const isAllHookahMixesToShow = (text) => isHookahMixMentioned(text) && textContainsAny(text, ["все", "список", "сохранен"])
-
+const isThrowDice = (text) => isBotMentioned(text) && textContains(text, 'кубик') && textContainsAny(text, ["кинь", "брос", "кидай"])
 
 module.exports = {
   isCalledBack,
@@ -28,4 +28,5 @@ module.exports = {
   isHookahMixToDelete,
   isRandomHookahMixToShow,
   isAllHookahMixesToShow,
+  isThrowDice,
 }

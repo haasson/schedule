@@ -15,11 +15,12 @@ const setInitialConfig = (chatId) => {
 }
 
 const shouldSkipMessage = (msg) => {
-  return msg.from.is_bot || !msg.text
+  return !msg.text || msg.from.is_bot
 }
 
 
 const onMessage = async (msg) => {
+  console.log(msg)
 
   if (shouldSkipMessage(msg)) return
 
