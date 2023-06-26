@@ -1,9 +1,11 @@
 const { botConfig } = require("../../config")
+const { getCurrentRates } = require("../../services/currency")
 const { getTomorrowWeather, getWeatherForecast, getCurrentWeather } = require("../../services/weather")
 const { saveContext, context } = require("../../utils/context")
 const { getRandomArrayElement } = require("../../utils/math")
 const { textContains } = require("../../utils/strings")
 const { isNowMentioned, isWeatherMentioned, isQuestion, isForecastMentioned } = require("./conditions")
+const { putToDatabase, getFromDatabase, deleteFromDatabase } = require('../../services/database')
 
 const simplePhrases = [
   { text: 'коммунизм', answer: 'Коммунизм - говно!' },
@@ -76,6 +78,105 @@ const getWeather = async ({ text }) => {
   }
 }
 
+const getRates = async () => {
+  const rates = await getCurrentRates()
+  return `Курсы валют:\n🇺🇸 ${rates.usd}\n🇪🇺 ${rates.eur}\n🇰🇿 ${rates.kzt}`
+}
+
+const enableSaveMixMode = () => {
+  saveContext('saveMix')
+  return 'Напиши какой микс нужно сохранить'
+}
+
+const saveMix = async ({ text, from, date }) => {
+  const key = `mixes/${date}`
+  const payload = {
+    description: text,
+    user: from.first_name,
+    date,
+  }
+  await putToDatabase({ [key]: payload })
+  putToDatabase({ [`archive/${key}`]: payload })
+
+  delete context.saveMix
+  return 'Микс добавлен в базу'
+}
+
+const enableDeleteMixMode = async (msg) => {
+  const numbers = msg.text.match(/\d+/g)
+  if (numbers?.length) {
+    const text = numbers.join(' ')
+    return await deleteMix({ ...msg, text })
+  }
+
+  saveContext('deleteMix')
+  return 'Напиши номера миксов, которые нужно удалить. В следующий раз можно просто писать "Удали микс Номера миксов" и я сразу удалю их из базы'
+}
+
+const deleteMix = async ({ text }) => {
+  const indexes = text.split(' ').filter(el => typeof +el === 'number')
+
+  delete context.deleteMix
+  if (!indexes) {
+    return 'Если честно, нихера не понятно'
+  }
+
+  const mixes = await getFromDatabase('mixes')
+  if (!mixes) {
+    return 'У тебя еще нет миксов, придурок!'
+  }
+  const promises = indexes.map(index => {
+    return new Promise(async (resolve) => {
+      const mixToRemove = Object.keys(mixes)[+index - 1]
+      if (mixToRemove) {
+        await deleteFromDatabase(`mixes/${mixToRemove}`)
+        resolve(index)
+      }
+      resolve(null)
+    })
+  })
+
+  try {
+    let res = await Promise.all(promises)
+    res = res.filter(el => !!el)
+    if (!res.length) {
+      return 'Нет таких миксов!'
+    }
+
+    if (res.length < indexes.length) {
+      const removedIndexes = res.reduce((memo, value) => memo += `${value}, `, '')
+      return `Удалил только ${res.length === 1 ? 'микс' : 'миксы'} номер ${removedIndexes.slice(0, -2)}. Остальные не нашел, сорян`
+    }
+
+    return res.length > 1 ? 'Туда им и дорога' : 'Это был невкусный микс, но теперь он тебя не побеспокоит'
+  } catch (error) {
+    console.error('error', error)
+    return 'Ничего не получилось( Спроси Жеку чё за хуйня'
+  }
+}
+
+const showAllMixes = async () => {
+  const mixes = await getFromDatabase('mixes')
+  if (!mixes) {
+    return 'Миксов нет, но вы держитесь'
+  }
+  const text = Object.values(mixes).reduce((memo, mix, index) => {
+    return memo += `${index + 1}. ${mix.description}. Добавил ${mix.user}\n`
+  }, '')
+
+  return text
+}
+
+const showRandomMix = async () => {
+  const mixes = await getFromDatabase('mixes')
+  if (!mixes) {
+    return 'Миксов нет, но вы держитесь'
+  }
+  const mix = getRandomArrayElement(Object.values(mixes))
+
+  return `${mix.description}. Добавил ${mix.user}`
+}
+
 module.exports = {
   simplePhrases,
   disableSilentMode,
@@ -84,4 +185,11 @@ module.exports = {
   disableHuificator,
   enableHuificator,
   getWeather,
+  getRates,
+  enableSaveMixMode,
+  saveMix,
+  enableDeleteMixMode,
+  deleteMix,
+  showAllMixes,
+  showRandomMix,
 }

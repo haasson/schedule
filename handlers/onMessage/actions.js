@@ -3,8 +3,8 @@ const { context } = require('../../utils/context')
 const { isBotMentioned, textContains, huificate } = require("../../utils/strings");
 const { getRandomArrayElement } = require('../../utils/math')
 const { greetings } = require('../../data/greetings')
-const { isCalledBack, isShutUp, isGreeting, isWeatherMentioned } = require('./conditions')
-const { simplePhrases, enableSilentMode, disableSilentMode, setSilencePeriod, enableHuificator, disableHuificator, getWeather } = require('./utils');
+const { isCalledBack, isShutUp, isGreeting, isWeatherMentioned, isRatesMentioned, isHookahMixToSave, isRandomHookahMixToShow, isAllHookahMixesToShow, isHookahMixToDelete } = require('./conditions')
+const { simplePhrases, enableSilentMode, disableSilentMode, setSilencePeriod, enableHuificator, disableHuificator, getWeather, getRates, enableSaveMixMode, saveMix, enableDeleteMixMode, deleteMix, showAllMixes, showRandomMix } = require('./utils');
 const { checkIfBotSpeaks } = require("../../utils/bot");
 
 
@@ -58,11 +58,47 @@ const actions = [
     condition: (text) => context.weather || isWeatherMentioned(text),
     action: getWeather,
   },
+  {
+    name: 'currency',
+    condition: isRatesMentioned,
+    action: getRates,
+  },
+  {
+    name: 'enableSaveMixMode',
+    condition: isHookahMixToSave,
+    action: enableSaveMixMode,
+  },
+  {
+    name: 'saveMix',
+    condition: () => context.saveMix,
+    action: saveMix,
+  },
+  {
+    name: 'enableDeleteMixMode',
+    condition: isHookahMixToDelete,
+    action: enableDeleteMixMode,
+  },
+  {
+    name: 'deleteMix',
+    condition: () => context.deleteMix,
+    action: deleteMix,
+  },
+  {
+    name: 'showAllMixes',
+    condition: isAllHookahMixesToShow,
+    action: showAllMixes,
+  },
+  {
+    name: 'showRandomMix',
+    condition: isRandomHookahMixToShow,
+    action: showRandomMix,
+  }
 ]
 
 
 const handleMessage = async (msg) => {
   const { chat, text } = msg
+  console.log(msg)
   const selectedAction = Object.values(actions).find(action => {
     const conditionResult = action.condition(text)
     if (conditionResult) {
@@ -72,7 +108,6 @@ const handleMessage = async (msg) => {
 
   if (selectedAction) {
     const answer = await selectedAction.action?.(msg, selectedAction.conditionResult)
-    console.log('speak', checkIfBotSpeaks(chat.id))
     if (answer && checkIfBotSpeaks(chat.id)) {
       bot.sendMessage(chat.id, answer)
     }
