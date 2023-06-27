@@ -6,6 +6,7 @@ const { getRandomArrayElement } = require("../../utils/math")
 const { textContains } = require("../../utils/strings")
 const { isNowMentioned, isWeatherMentioned, isQuestion, isForecastMentioned } = require("./conditions")
 const { putToDatabase, getFromDatabase, deleteFromDatabase } = require('../../services/database')
+const { names, secondNames } = require('../../data/eleonoraNames')
 
 const simplePhrases = [
   { text: 'коммунизм', answer: 'Коммунизм - говно!' },

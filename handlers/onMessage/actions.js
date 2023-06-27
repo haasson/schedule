@@ -46,7 +46,7 @@ const actions = [
   {
     name: 'simpleAnswer',
     condition: (text) => simplePhrases.find(phrase => textContains(text, phrase.text)),
-    message: (_, { answer }) => typeof answer === 'function' ? answer() : answer
+    message: (_, { answer } = {}) => typeof answer === 'function' ? answer() : answer,
   },
   {
     name: 'greeting',
@@ -103,10 +103,12 @@ const actions = [
 
 const handleMessage = async (msg) => {
   const { chat, text } = msg
-  const selectedAction = Object.values(actions).find(action => {
+  let selectedAction
+
+  Object.values(actions).forEach(action => {
     const conditionResult = action.condition(text)
     if (conditionResult) {
-      return { ...action, conditionResult }
+      selectedAction = { ...action, conditionResult }
     }
   })
 
